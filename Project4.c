@@ -9,7 +9,9 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <signal.h>
+#include <fcntl.h>
 
 #define PORT "8000"  // the port users will be connecting to
 
@@ -38,7 +40,7 @@ void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-int main(void)
+int main(int argc, char** argv)
 {
 	int sockfd, new_fd; 
 	struct addrinfo hints, *servinfo, *p;
@@ -119,11 +121,10 @@ int main(void)
 		if (!fork()) { // this is the child process
 			close(sockfd); // child doesn't need the listener
 			char buffer[1000];
-			int oldDestination;
-			FilePath = getBaseName(argv[1]);
-			
-			if (( oldDestination = open(oldFilePath, O_RDONLY)) == -1){
-				printf("Error reading file %s\n", oldFilePath);
+			int destination;
+			char * filePath = argv[1];
+			if ((destination = open("Text.txt", O_RDONLY)) == -1){
+				printf("Error reading file %s\n", filePath);
 				exit(1);
 			}
 			if (send(new_fd, "Hello, world!", 13, 0) == -1)
